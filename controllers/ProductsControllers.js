@@ -5,7 +5,7 @@ const asyncCatch = require("../utils/asyncCatch.js");
 const jwt = require("jsonwebtoken");
 
 exports.getAllProducts = asyncCatch(async (req, res) => {
-    let features = new ApiFeatures(Product.find(), req.query);
+    let features = new ApiFeatures(Product.find({isDeleted:false}), req.query);
     features.filter().search().sort().fields().pagination();
     const products = await features.query;
     let count = await Product.countDocuments()
