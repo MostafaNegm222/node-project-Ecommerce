@@ -1,0 +1,65 @@
+# =========================
+# Node dependencies
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Environment variables
+# =========================
+config.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# Runtime data
+# =========================
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# =========================
+# Coverage / Tests
+# =========================
+coverage/
+.nyc_output/
+
+# =========================
+# Build outputs
+# =========================
+dist/
+build/
+.tmp/
+.cache/
+
+# =========================
+# OS / Editor files
+# =========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# =========================
+# Vercel
+# =========================
+.vercel/
+
+# =========================
+# Optional Mongo files
+# =========================
+data/
+dump/
