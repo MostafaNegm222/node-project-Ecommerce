@@ -16,7 +16,7 @@ const globalError = require("./middleware/globalError.js")
 const app = express()
 
 app.use(express.json({ limit: '10kb' }));
-app.use(express.static(path.join(__dirname,"public")))
+// app.use(express.static(path.join(__dirname,"public")))
 app.use(morgan("dev"))
 app.use(helmet())
 app.use(cors({
@@ -43,7 +43,10 @@ const authLimiter = rateLimit({
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use('/',limiter, (req, res) => {
+app.use('/auth/login', authLimiter);
+app.use('/auth/register', authLimiter);
+
+app.get('/',limiter, (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Welcome to E-commerce API',
@@ -51,22 +54,19 @@ app.use('/',limiter, (req, res) => {
     endpoints: {
       auth: '/auth',
       products: '/products',
+      users: '/users'
     },
   });
 });
 
-app.use('/auth/login', authLimiter);
-app.use('/auth/register', authLimiter);
+
+app.use("/api/products",limiter, ProductsRouter)
+app.use("/api/users",limiter, userRouter)
+app.use("/api/auth", authRouter)
 
 
-
-app.use("/products",limiter, ProductsRouter)
-app.use("/users",limiter, userRouter)
-app.use("/auth", authRouter)
-
-
-app.use((req,res) => {
-    res.status(404).sendFile(path.join(__dirname,"public","index.html"))
+app.use( (req,res,next) => {
+    res.status(404).sendFile(path.join(__dirname,"public","error.html"))
 })
 
 app.use(globalError)
