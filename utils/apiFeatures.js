@@ -54,7 +54,7 @@ class ApiFeatures {
           let fields = this.searchQuery.fields.split(",").join(" ")
           this.query = this.query.select(fields)
         } else {
-          this.query = this.query.select("-isDeleted")
+          this.query = this.query.select("-isDeleted -__v")
         }
 
         return this
@@ -64,9 +64,6 @@ class ApiFeatures {
   let limit = parseInt(this.searchQuery.limit, 10) || 10;
   let page = parseInt(this.searchQuery.page, 10) || 1;
   let skip = (page - 1) * limit;
-
-  console.log(`Page: ${page}, Limit: ${limit}, Skip: ${skip}`);
-
   this.query = this.query.skip(skip).limit(limit);
 
   return this;

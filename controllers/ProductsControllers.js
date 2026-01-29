@@ -8,7 +8,7 @@ exports.getAllProducts = asyncCatch(async (req, res) => {
     let features = new ApiFeatures(Product.find({isDeleted:false}), req.query);
     features.filter().search().sort().fields().pagination();
     const products = await features.query;
-    let count = await Product.countDocuments()
+    let count = await Product.countDocuments({isDeleted:false})
     res.status(200).json({
       success: true,
       count,
@@ -54,6 +54,21 @@ exports.getProductsForUser = asyncCatch(async (req,res,next) => {
   res.status(200).json({products})
 })
 
+
+exports.getDeletedItems = asyncCatch(async (req, res) => {
+    let products = await Product.find(
+      { isDeleted: true },
+      { name: 1, price: 1 }
+    );
+    res.status(200).json({
+      success: true,
+      ProductsCount: products.length,
+      products,
+    });
+ 
+})
+
+
 exports.createProduct = asyncCatch(async (req, res) => {
     if(req.headers.authorization) {
       let token = req.headers.authorization.split(" ")[1]
@@ -66,8 +81,7 @@ exports.createProduct = asyncCatch(async (req, res) => {
     }
 });
 
-exports.updateProduct = async (req, res) => {
-  try {
+exports.updateProduct = asyncCatch(async (req, res) => {
     let product = await Product.findByIdAndUpdate(
       req.params.id,
       { ...req.body, updatedAt: Date.now() },
@@ -80,16 +94,10 @@ exports.updateProduct = async (req, res) => {
       success: true,
       product,
     });
-  } catch (err) {
-    res.status(404).json({
-      success: false,
-      message: err.message,
-    });
-  }
-};
+  
+})
 
-exports.deleteProduct = async (req, res) => {
-  try {
+exports.deleteProduct = asyncCatch(async (req, res) => {
     let product = await Product.findByIdAndUpdate(
       req.params.id,
       {
@@ -105,29 +113,15 @@ exports.deleteProduct = async (req, res) => {
       success: true,
       product,
     });
-  } catch (err) {
-    res.status(404).json({
-      success: false,
-      message: err.message,
-    });
-  }
-};
+  })
 
-exports.getDeletedItems = async (req, res) => {
-  try {
-    let products = await Product.find(
-      { isDeleted: true },
-      { name: 1, price: 1 }
-    );
-    res.status(200).json({
+exports.deleteProductPermanently = asyncCatch(async (req, res) => {
+    let product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) {
+      return next(new AppError("PRODUCT NOT FOUND",404))
+    }
+    res.status(204).json({
       success: true,
-      ProductsCount: products.length,
-      products,
     });
-  } catch (err) {
-    res.status(404).json({
-      success: false,
-      message: err,
-    });
-  }
-};
+  })
+

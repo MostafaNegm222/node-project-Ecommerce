@@ -8,5 +8,6 @@ const router = express.Router()
 
 router.route("/signup").post(validator(registerSchema),authController.signup)
 router.route("/login").post(validator(loginSchema),authController.login)
+router.route("/confirm-email").post(authController.confirmEmail)
 
 module.exports = router
