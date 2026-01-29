@@ -60,9 +60,9 @@ app.get('/',limiter, (req, res) => {
 });
 
 
-app.use("/api/products",limiter, ProductsRouter)
-app.use("/api/users",limiter, userRouter)
-app.use("/api/auth", authRouter)
+app.use("/products",limiter, ProductsRouter)
+app.use("/users",limiter, userRouter)
+app.use("/auth", authRouter)
 
 
 app.use( (req,res,next) => {
