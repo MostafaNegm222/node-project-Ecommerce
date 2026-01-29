@@ -43,7 +43,7 @@ const authLimiter = rateLimit({
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.get('/',limiter, (req, res) => {
+app.use('/',limiter, (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Welcome to E-commerce API',
@@ -54,6 +54,7 @@ app.get('/',limiter, (req, res) => {
     },
   });
 });
+
 app.use('/auth/login', authLimiter);
 app.use('/auth/register', authLimiter);
 
