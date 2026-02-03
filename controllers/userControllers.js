@@ -15,8 +15,8 @@ exports.getAllUsers = async (req,res) => {
     });
 }
 
-exports.getOneUser = async (req,res) => {
-    let user = await user.findById(req.params.id);
+exports.getOneUser = asyncCatch(async (req,res) => {
+    let user = await User.findById(req.params.id);
     if (
       !user ||
       (await User.findOne({ isActive: false, _id: req.params.id }))
@@ -27,7 +27,7 @@ exports.getOneUser = async (req,res) => {
       success: true,
       user,
     });
-}
+})
 
 
 exports.createUser = asyncCatch(async (req, res) => {
