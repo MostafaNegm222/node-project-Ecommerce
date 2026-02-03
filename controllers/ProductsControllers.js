@@ -9,11 +9,16 @@ exports.getAllProducts = asyncCatch(async (req, res) => {
     features.filter().search().sort().fields().pagination();
     const products = await features.query;
     let count = await Product.countDocuments({isDeleted:false})
+    let numberOfPages = Math.ceil(count/(req.query.limit || 10))    
     res.status(200).json({
       success: true,
-      count,
-      ProductsCount: products.length,
+      data : {
+      totalProducts : count,
+      ProductsCountPerPage: products.length,
+      numberOfPages  ,
+      pageNumber : Number(req.query.page) || 1,
       products,
+      }
     });
   })
 
