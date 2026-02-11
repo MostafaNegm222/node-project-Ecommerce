@@ -18,10 +18,6 @@ const ProductSchema = mongoose.Schema({
         minLength : [3,"name must be 3 characters or above"],
         required : true,
     },
-    image :{
-        type : String,
-        minLength : [3,"name must be 3 characters or above"],
-    },
     price : {
         type : Number,
         default : 0
@@ -39,6 +35,11 @@ const ProductSchema = mongoose.Schema({
     },
     deletedAt : {
         type : Date
+    },
+    category : String,
+    image: {
+    url: String,
+    publicId: String
     },
     userID : {
         type : mongoose.Schema.Types.ObjectId,

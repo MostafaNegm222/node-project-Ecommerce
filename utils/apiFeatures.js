@@ -44,7 +44,7 @@ class ApiFeatures {
       let sortedBy = this.searchQuery.sort.split(",").join(" ")
       this.query = this.query.sort(sortedBy)
     } else {
-      this.query = this.query.sort("createdAt")
+      this.query = this.query.sort("_id")
     }
     return this
   }

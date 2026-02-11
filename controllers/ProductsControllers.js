@@ -3,6 +3,7 @@ const ApiFeatures = require("../utils/apiFeatures.js");
 const AppError = require("../utils/classError.js")
 const asyncCatch = require("../utils/asyncCatch.js");
 const jwt = require("jsonwebtoken");
+const { uploadToCloudinary } = require("../utils/uploadToCloudirany.js");
 
 exports.getAllProducts = asyncCatch(async (req, res) => {
     let features = new ApiFeatures(Product.find({isDeleted:false}), req.query);
@@ -75,16 +76,38 @@ exports.getDeletedItems = asyncCatch(async (req, res) => {
 
 
 exports.createProduct = asyncCatch(async (req, res) => {
-    if(req.headers.authorization) {
-      let token = req.headers.authorization.split(" ")[1]
-      let {id} = jwt.verify(token,process.env.SECRET_KEY)
-      let product = await Product.create({...req.body,userID:id});
-      res.status(201).json({
-        success: true,
-        product,
-      });
-    }
+    const { title, name, description, category, price } = req.body;
+
+  if (!title || !name || !description || !price || !category) {
+    return next(new AppError("Missing required fields", 400));
+  }
+
+  let token = req.headers.authorization.split(" ")[1];
+  let { id } = jwt.verify(token, process.env.SECRET_KEY);
+
+  let imageData = {};
+  if (req.file) {
+    const result = await uploadToCloudinary(req.file.buffer, "products");
+    imageData = {
+      image: {
+        url: result.secure_url,
+        publicId: result.public_id,
+      },
+    };
+  }
+
+  const product = await Product.create({
+    ...req.body,
+    ...imageData,
+    userID: id,
+  });
+
+  res.status(201).json({
+    success: true,
+    product,
+  });
 });
+
 
 exports.updateProduct = asyncCatch(async (req, res) => {
     let product = await Product.findByIdAndUpdate(
