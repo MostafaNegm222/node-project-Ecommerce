@@ -56,7 +56,7 @@ exports.login = asyncCatch(async (req,res,next) => {
     if(!findUser.emailConfirm) return next(new AppError("please confirm your email first!",401))
     // password === hashed password
     let isMatched = await bcrypt.compare(password,findUser.password)
-    let token = await jwtSign({id:findUser._id},process.env.SECRET_KEY,{expiresIn:"7d"})
+    let token = await jwtSign({id:findUser._id,role:findUser.role},process.env.SECRET_KEY,{expiresIn:"7d"})
     findUser.confirmOTP = undefined
     if(isMatched) {
         res.status(200).json({token})
@@ -105,4 +105,19 @@ exports.resetPassword = asyncCatch(async (req,res,next) => {
         success:true,
         user
     })
+})
+
+
+exports.getProfile = asyncCatch(async (req,res,next) => {
+    let user = await User.findById(req.params.id);
+    if (
+      !user ||
+      (await User.findOne({ isActive: false, _id: req.params.id }))
+    ) {
+      return next(new AppError("User not found",404))
+    }
+    res.status(200).json({
+      success: true,
+      user,
+    });
 })

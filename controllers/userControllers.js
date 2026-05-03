@@ -15,13 +15,13 @@ exports.getAllUsers = async (req,res) => {
     });
 }
 
-exports.getOneUser = asyncCatch(async (req,res) => {
+exports.getOneUser = asyncCatch(async (req,res,next) => {
     let user = await User.findById(req.params.id);
     if (
       !user ||
       (await User.findOne({ isActive: false, _id: req.params.id }))
     ) {
-      return next(new AppError("USER NOT FOUND",404))
+      return next(new AppError("User not found",404))
     }
     res.status(200).json({
       success: true,

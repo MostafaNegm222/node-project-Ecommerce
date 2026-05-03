@@ -38,6 +38,13 @@ exports.getStatus = asyncCatch(async (req,res) => {
   })
 })
 
+exports.getCategories = asyncCatch(async (req,res) => {
+  let status = await Product.distinct("category")
+  res.status(200).json({
+    status
+  })
+})
+
 exports.getOneProduct = asyncCatch(async (req, res,next) => {
     let product = await Product.findById(req.params.id);
 
@@ -75,7 +82,7 @@ exports.getDeletedItems = asyncCatch(async (req, res) => {
 })
 
 
-exports.createProduct = asyncCatch(async (req, res) => {
+exports.createProduct = asyncCatch(async (req, res,next) => {
     const { title, name, description, category, price } = req.body;
 
   if (!title || !name || !description || !price || !category) {
