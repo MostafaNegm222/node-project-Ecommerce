@@ -96,7 +96,9 @@ describe("restrictTo", () => {
 
   test("answers 403 for a role that is not allowed", async () => {
     const res = fakeRes();
-    await restrictTo("admin")({ user: { role: "user" } }, res, jest.fn());
+    const next = jest.fn();
+    await restrictTo("admin")({ user: { role: "user" } }, res, next);
     expect(res.status).toHaveBeenCalledWith(403);
+    expect(next).not.toHaveBeenCalled();
   });
 });
