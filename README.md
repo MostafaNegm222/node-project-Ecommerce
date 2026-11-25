@@ -1,77 +1,68 @@
 # Node E-Commerce API
 
-A REST API for a small online store, built with Node.js, Express and MongoDB. It covers user accounts with email confirmation, role-based admin routes, and a product catalogue with search, filtering, sorting, pagination and image upload.
+## 1. Description
 
-## What it does
+A REST API for a small online store, built with Node.js, Express and MongoDB. It covers the parts every small shop backend needs: user accounts with email confirmation, role-based admin routes, and a product catalogue with search, filtering, sorting, pagination and image upload.
 
-**Authentication (`/auth`)**
-- Sign up with name, email and password. The password is hashed with bcrypt and a 6-digit OTP is emailed to confirm the address.
-- Confirm the email with the OTP, then log in. Login returns a JWT that expires in 7 days.
-- Forgot / reset password using an emailed OTP.
-- Request validation with Yup (name 6 to 20 characters, valid email, password at least 6 characters).
-- Sign up and login are rate limited to 5 requests per 15 minutes per IP.
+## 2. Technologies and Versions
 
-**Products (`/products`)**
-- Public list with query features: filtering with operators (`price[gte]=100`), keyword search over title, name and description, sorting, field selection and pagination (default 10 per page).
-- Category list and per-category statistics (count, min, max and average price).
-- Admin only: create a product with an image (uploaded to Cloudinary, images only, max 10 MB), edit, soft delete, list soft-deleted items, delete permanently.
-- Any logged-in user can view one product and list the products they created.
+- Node.js with Express ^5.2.1
+- MongoDB with Mongoose ^9.1.1
+- JWT ^9.0.3 (auth), bcrypt ^6.0.0 (password hashing), nanoid ^5.1.6
+- Yup ^1.7.1 (request validation)
+- Multer ^2.0.2 and Cloudinary ^2.9.0 (product image upload)
+- Nodemailer ^7.0.12 (confirmation and reset emails)
+- Helmet ^8.1.0, express-rate-limit ^8.2.1, cors ^2.8.5, cookie-parser ^1.4.7, morgan ^1.10.1
+- Jest ^30.5.2 (tests), nodemon ^3.1.11 (dev), Dockerfile included
 
-**Users (`/users`, admin only)**
-- List, view, create, change role, soft delete and permanently delete users.
+## 3. Requirements and Dependencies
 
-**General**
-- Global error handler that turns JWT, duplicate-key, cast and Mongoose validation errors into clean JSON responses.
-- Helmet, CORS (origin from `CLIENT_URL`, default `http://localhost:4200`), request size limit and a global rate limit of 100 requests per 10 minutes.
+- Node.js installed
+- A MongoDB instance (local or Atlas)
+- A Cloudinary account and an email account for outgoing mail (for the related features)
+- Dependencies are installed with `npm install` (see `package.json`)
 
-## Tech stack
-
-Node.js, Express 5, MongoDB with Mongoose, JWT, bcrypt, Yup, Multer, Cloudinary, Nodemailer, Helmet, express-rate-limit, Jest.
-
-## Project structure
-
-```
-├── app.js            # Express app: middleware and routes
-├── server.js         # Entry point: connects to MongoDB and starts the server
-├── config/           # MongoDB and Cloudinary setup
-├── controllers/      # Request handlers (auth, products, users)
-├── models/           # Mongoose models (User, Product)
-├── routes/           # Route definitions
-├── validators/       # Yup schemas
-├── middleware/       # auth, restrictTo, validator, multer, global error handler
-├── utils/            # ApiFeatures, AppError, async wrapper, email helpers
-├── tests/            # Jest unit tests
-└── Dockerfile
-```
-
-## Run it locally
-
-You need Node.js and a MongoDB instance.
+## 4. Installation and Run Steps
 
 ```bash
+git clone https://github.com/MostafaNegm222/node-project-Ecommerce.git
+cd node-project-Ecommerce
 npm install
-cp example.env config.env   # the app reads config.env, then fill in the values
-npm start                   # runs server.js with nodemon
+cp example.env config.env   # the app reads config.env, not .env
+# fill in the values in config.env (see section 5)
+npm start                   # nodemon server.js
 ```
 
-Variables used by the code: `PORT`, `LOCAL_DB` (MongoDB connection string), `SECRET_KEY` (JWT secret), `SALT_ROUND` (bcrypt rounds, for example 10), `CLIENT_URL` (optional), `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_MAIL`, `EMAIL_PASSWORD`, and the Cloudinary keys listed in `example.env`.
+A `Dockerfile` is included for building a container image of the API.
 
-Then open `http://localhost:<PORT>/` for the welcome response listing the main routes.
+## 5. Environment Variables
 
-### Docker
+Listed in `example.env`; copy it to `config.env` and fill in real values (no secrets are stored in the repo):
 
-A `Dockerfile` is included (Node 20, listens on port 3000). It has not been verified end to end in this repo's history, so treat it as a starting point.
+| Variable | Purpose |
+| --- | --- |
+| `PORT` | Port the API listens on |
+| `LOCAL_DB` / `DATABASE` | MongoDB connection strings (local / production) |
+| `SECRET_KEY` | Secret used to sign JWTs |
+| `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_MAIL`, `EMAIL_PASSWORD` | SMTP settings for confirmation and reset emails |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_PUBLIC_KEY`, `CLOUDINARY_SECRET_KEY` | Cloudinary image storage |
+| `CLIENT_URL` | Allowed CORS origin (defaults to `http://localhost:4200`) |
 
-## Tests
+## 6. Usage and Main Features
+
+- **Authentication (`/auth`)**: sign up (bcrypt-hashed password, 6-digit OTP emailed to confirm the address), confirm email, log in (JWT valid 7 days), forgot/reset password by OTP. Request validation with Yup (name 6-20 characters, valid email, password at least 6). Sign-up and login are rate limited to 5 requests per 15 minutes per IP.
+- **Products (`/products`)**: public list with operator filtering (`price[gte]=100`), keyword search over title, name and description, sorting, field selection and pagination (default 10 per page); category list and per-category statistics (count, min, max and average price). Admins can create products with an image (Cloudinary, images only, max 10 MB), edit, soft delete, list soft-deleted items and delete permanently. Logged-in users can view one product and list the products they created.
+- **Users (`/users`, admin only)**: list, view, create, change role, soft delete and permanently delete users.
+- **General**: global error handler (clean JSON for JWT, duplicate-key, cast and validation errors), Helmet, CORS from `CLIENT_URL`, request size limit, global rate limit of 100 requests per 10 minutes.
+
+## 7. Screenshots / Demo
+
+No live demo; the API runs locally.
+
+## 8. Running Tests
 
 ```bash
-npm install
 npm test
 ```
 
-26 unit tests with Jest cover the query builder (`ApiFeatures`), all four Yup validation schemas, the validator, error handling and role-check middleware, and the async error wrapper. They do not need a database or network access.
-
-## Notes
-
-- Controllers that talk to MongoDB, Cloudinary and the mail server are not covered by the unit tests.
-- Uses `npm install`, not `npm ci`, because the lockfile has not been regenerated for the Jest dev dependency.
+Jest unit tests live in `tests/`.
